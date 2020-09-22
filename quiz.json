@@ -1,6 +1,61 @@
 [
     {
-        "name" : "rahul",
-        "age" : 30
+        "question_no"   : 1 ,
+        "qname"         : "How many players in a football team?",
+        "options"       : [ "10","9","11","12"],
+        "correct"       : 3
+    },
+    {
+        "question_no"   : 2 ,
+        "qname"         : "What is the duration of half macth in football?",
+        "options"       : [ "30","35","50","45"],
+        "correct"       : 4
+    },{
+        "question_no"   : 3 ,
+        "qname"         : "How many penalties are taken in case of a tie?",
+        "options"       : [ "5","4","6","3"],
+        "correct"       : 1
+    },
+    {
+        "question_no"   : 4 ,
+        "qname"         : "How many substitutions can be made in a single match?",
+        "options"       : [ "3","5","4","2"],
+        "correct"       : 2
+    },
+    {
+        "question_no"   : 5 ,
+        "qname"         : "How many yellow cards makes a red card penalty?",
+        "options"       : [ "1","2","3","4"],
+        "correct"       : 2
+    },
+    {
+        "question_no"   : 6 ,
+        "qname"         : "Who plays for Potugal?",
+        "options"       : [ "Ronaldo","Messi","Neymar","Torres"],
+        "correct"       : 1
+    },
+    {
+        "question_no"   : 7 ,
+        "qname"         : "Who plays for Agentina?",
+        "options"       : [ "Ronaldo","Messi","Neymar","Torres"],
+        "correct"       : 2
+    },
+    {
+        "question_no"   : 8 ,
+        "qname"         : "How many goals were scored in the 2018 world cup?",
+        "options"       : [ "2","3","1","4"],
+        "correct"       : 3
+    },
+    {
+        "question_no"   : 9 ,
+        "qname"         : "Which is not a football game?",
+        "options"       : [ "Fifa","PES","Dream League","CS"],
+        "correct"       : 4
+    },
+    {
+        "question_no"   : 10 ,
+        "qname"         : "Who is the captain of Indian team?",
+        "options"       : [ "Anirudh Thapa","Nishu Kumar","Udanta Singh","Sunil Chhetri"],
+        "correct"       : 4
     }
 ]

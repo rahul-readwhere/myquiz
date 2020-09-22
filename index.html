@@ -12,92 +12,37 @@
     </section>
 
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded',initializeQuiz);
-        // document.addEventListener('DOMContentLoaded',readTextFile("https://drive.google.com/file/d/1MARx3Cb7oHzZBTVzbhqYfIyBqkcE9IO0/view?usp=sharing", 
-        // function(text){ var data = JSON.parse(text); console.log(data); initializeQuiz();}));
+        document.addEventListener('DOMContentLoaded',loadQuizData);
+      
+
         var curUser = "";
-        var questionCount = 1;
+        var questionCount = 0;
         var pickedAnswers = [];
         var correctAnswers = [];
         var correctCount = 0;
         var notAnswered = 0;
         var idcheck = [];
-
-        /////
-        var questions = [
-            {
-                "question_no" : 1 ,
-                "qname"    : "first",
-                "options"     : [ "pk","gk","ck","dk"],
-                "correct"    : 1
-            },
-            {
-                "question_no" : 2 ,
-                "qname"    : "what is the name of cm?",
-                "options"     : [ "p","g","c","d"],
-                "correct"     : 2
-            },
-            {
-                "question_no" : 3 ,
-                "qname"    : "third?",
-                "options"     : [ "t","h","r","ee"],
-                "correct"    : 1
-            },
-            {
-                "question_no" : 4 ,
-                "qname"    : "fourth",
-                "options"     : [ "f","o","u","r"],
-                "correct"     : 3
-            },
-            {
-                "question_no" : 5 ,
-                "qname"    : "fifth",
-                "options"     : [ "f","i","v","e"],
-                "correct"     : 1
-            },
-            {
-                "question_no" : 6 ,
-                "qname"    : "sixth",
-                "options"     : [ "s","i","x","x"],
-                "correct"     : 4
-            },
-            {
-                "question_no" : 7 ,
-                "qname"    : "seventh",
-                "options"     : [ "s","e","v","en"],
-                "correct"     : 1
-            },
-            {
-                "question_no" : 8 ,
-                "qname"    : "eighth",
-                "options"     : [ "e","i","g","ht"],
-                "correct"     : 2
-            },
-            {
-                "question_no" : 9 ,
-                "qname"    : "nineth",
-                "options"     : [ "n","i","n","e"],
-                "correct"     : 1
-            },
-            {
-                "question_no" : 10 ,
-                "qname"    : "tenth",
-                "options"     : [ "t","e","n","n"],
-                "correct"     : 3
-            }
-        ]
-        // function readTextFile(file, callback) {
-        //     var rawFile = new XMLHttpRequest();
-        //     rawFile.overrideMimeType("application/json");
-        //     rawFile.open("GET", file, true);
-        //     rawFile.onreadystatechange = function() {
-        //         if (rawFile.readyState === 4 && rawFile.status == "200") {
-        //             callback(rawFile.response);
-        //         }
-        //     }
-        //     rawFile.send(null);
-        // }
+        var users = [];
+        var questions ;
+       
         
+        function loadQuizData() {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                    questions = JSON.parse(this.response);
+                    console.log(questions);
+                    for(var x in questions) 
+                        correctAnswers.push(questions[x].correct);
+                   // console.log(correctAnswers);
+                }
+            };
+            xhttp.open("GET", "http://localhost:9000/quiz.json", true);
+            xhttp.send();
+            
+            initializeQuiz();
+        }
+
         function initializeQuiz() {
             document.getElementById('main').innerHTML='<div id="quizWrapper"></div>';
             console.log(document.getElementById('main').value);
@@ -113,13 +58,17 @@
                 curUser += document.getElementById('userName').value;
             })
 
-           // pushing correctAnswers from file to array
-            for(var x in questions) 
-                     correctAnswers.push(questions[x].correct);
-                    
-            //console.log(correctAnswers);
 
             //listener to button
+            //for( var u in users)
+            //    if(users[u].username == curUser)
+             //       {
+             //           mainEle.innerHTML += '<p id="attempt"> this is your attempt: '+parseInt(users[u].attempts+1)+'</p>'; 
+             //           break;
+             //           }
+                 
+            
+        
             document.getElementById('enterButton').addEventListener('click', ()=> {
                 //console.log("curuser is "+curUser);
                 if(curUser == "") {
@@ -128,7 +77,18 @@
                     setTimeout(renderInputs,3000);
                     }
                 else {
-                    loadQuestions();
+                    var flag ;
+                    for( var u in users)
+                        if(users[u].username == curUser)
+                            { 
+                                console.log("user already attempted");
+                                mainEle.innerHTML += '<p id="attempt">You are atempting the quiz again !</p>';
+                                setTimeout(loadQuestions,3000);
+                                return;
+                            }
+    
+                             users.push({"username": curUser});
+                             loadQuestions();
                 }
             })
         };
@@ -143,16 +103,32 @@
 
             //listener to next button //
             document.getElementById('nextQuestion').addEventListener('click', ()=> {
-
-                if(questionCount == 10) {
+                pushAnswerSelected();
+                if(questionCount == 9) {
                     mainEle.innerHTML += '<p>This is the last question please submit !<br>';
                     mainEle.innerHTML += '<button id="submit">SUBMIT</button>';
                     addListenerToSubmit();
                 }
                 else {
-                    pushAnswerSelected();
+                    
                     document.getElementById('optionWrapper').innerHTML= "";
-                    showQuestion(questionCount++);
+                    questionCount = questionCount+1;
+                    showQuestion();
+
+                }
+            });
+
+            //listener to previos button //
+            document.getElementById('prevQuestion').addEventListener('click', ()=> {
+                
+                if(questionCount == 0) {
+                    mainEle.innerHTML += '<p>This is the first question! </p>';
+                    return;
+                }
+                else {
+                    document.getElementById('optionWrapper').innerHTML= "";
+                    questionCount = questionCount-1;
+                    showQuestion();
                 }
             });
 
@@ -163,7 +139,7 @@
             var curQues;
             for(x in questions) 
                 {  //console.log(questions[x]);
-                    if(questions[x].question_no == questionCount)
+                    if(questions[x].question_no == questionCount+1)
                     {
                         curQues = questions[x];
                         //console.log(curQues);
@@ -172,8 +148,10 @@
                 }
             document.getElementById('question').innerHTML = curQues.qname;
             curQues.options.map((val,key)=> {
-                optionWrap.innerHTML += '<input type="radio" id ='+parseInt(key+1)+' name="optiongroup"/><label for='+key+'>'+val+'</span<br>';
-                
+                if(parseInt(key+1) == pickedAnswers[questionCount])
+                    optionWrap.innerHTML += '<input type="radio" id ='+parseInt(key+1)+' name="optiongroup"/ checked><label for='+key+'>'+val+'</label><br>';
+                else
+                    optionWrap.innerHTML += '<input type="radio" id ='+parseInt(key+1)+' name="optiongroup"/><label for='+key+'>'+val+'</label><br>';
             });
 
         }
@@ -182,32 +160,32 @@
 
         function pushAnswerSelected() {
             if(document.getElementById('1').checked)
-                pickedAnswers.push(1);
+                pickedAnswers[questionCount] = 1;
             else if(document.getElementById('2').checked)
-                pickedAnswers.push(2);
+                pickedAnswers[questionCount] = 2;
             else if(document.getElementById('3').checked)
-                pickedAnswers.push(3);
+                 pickedAnswers[questionCount] = 3;
             else if(document.getElementById('4').checked)
-                pickedAnswers.push(4);
+                pickedAnswers[questionCount] = 4;
             else
-                pickedAnswers.push(-1);
+                pickedAnswers[questionCount] = -1;
                 
-            if(pickedAnswers[questionCount-1] == correctAnswers[questionCount-1])
+            if(pickedAnswers[questionCount] == correctAnswers[questionCount])
                { 
                    correctCount++;
-                   idcheck.push('correctCheck')
+                   idcheck[questionCount]='correctCheck'
                }
-            else if(pickedAnswers[questionCount-1] == -1)
+            else if(pickedAnswers[questionCount] == -1)
                {
                    notAnswered++;
-                   idcheck.push('notansCheck');
+                   idcheck[questionCount]='notansCheck';
                }
             else {
-                   idcheck.push('wrongCheck');
+                    idcheck[questionCount]='wrongCheck';
                 }
-            console.log(pickedAnswers);
-            console.log(correctCount);
-            console.log(notAnswered);
+            console.log(pickedAnswers[questionCount],correctCount,notAnswered,idcheck);
+            // console.log(correctCount
+            // console.log(notAnswered);
         }
 
 
@@ -229,9 +207,25 @@
 
                 document.getElementById('detailsLink').addEventListener('click',()=>{
 
+                console.log(pickedAnswers);
+                console.log(correctAnswers);    
+                console.log(idcheck);
+
                 idcheck.map((id,key)=>{
-                    document.getElementById('detailsLink').innerHTML += '<div id='+id+'>'+key+'</div>';
+                    document.getElementById('detailsLink').innerHTML += '<div id='+id+'>'+parseInt(key+1)+'</div>';
                 });
+                });
+
+                document.getElementById('retakeButton').addEventListener('click',()=>{
+                     curUser = "";
+                     questionCount = 0;
+                     pickedAnswers = [];
+                     correctAnswers = [];
+                     correctCount = 0;
+                     notAnswered = 0;
+                     idcheck = [];
+                     questions ; 
+                     loadQuizData();
                 });
                 
                 
